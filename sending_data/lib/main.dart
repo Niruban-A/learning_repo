@@ -22,8 +22,17 @@ void main () async{
    onCreate: (db, version) {
     return db.execute("create database dogs(id Integer primarykey,name Text,age Integer)");
    },version: 1);
-    void insert(){
-      
+    Future<void> insert(Dog dog) async{
+      final db=await database;
+      db. insert("dog",dog.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+    Future<void> update(Dog dog)async{
+      final db=await database;
+      db.update("dog", dog.toMap(),
+      where: "id=?",
+      whereArgs: [dog.id],
+      conflictAlgorithm: ConflictAlgorithm.replace);
     }
    
   
