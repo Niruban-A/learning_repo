@@ -1,122 +1,85 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+class Dog {
+  int id;
+  String name;
+  int age;
+  Dog({required this.id, required this.name, required this.age});
+  Map<String, Object> tomap() {
+    return {"id": id, "name": name, "age": age};
+  }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+  String tostring() {
+    return "id:$id,name:$name,age:$age";
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+void main() async {
+  runApp(MaterialApp(home: Databaseopr(),));
+  WidgetsFlutterBinding.ensureInitialized();
+  final database = openDatabase(
+    join(await getDatabasesPath(), "dogdatabase.db"),
+    onCreate: (db, version) {
+      db.execute(
+        "Create table dogs (id INTEGER PRIMARY KEY,name TEXT ,age INTEGER)",
+      );
+    },
+    version: 1,
+  );
+  Future<void> insertdogs(Dog dog) async {
+    final db = await database;
+    await db.insert(
+      "dogs",
+      dog.tomap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
+  Future<void> updatesdogs(Dog dog) async {
+    final db = await database;
+    await db.update("dogs", dog.tomap(), where: "id=?", whereArgs: [dog.id]);
+  }
+
+  Future<List<Dog>> alldogs() async {
+    final db = await database;
+    final alldoggies = await db.query(
+      "dogs",
+    ); //the value of the code is will belike this  {'id': 1, 'name': 'Bruno', 'age': 4},
+    return [
+      for (final {"id": id as int, "name": name as String, "age": age as int}
+          in alldoggies)
+        Dog(id: id, name: name, age: age),
+    ];
+  }
+
+  Future<void> deletedogs(int id) async {
+    final db = await database;
+    db.delete("dogs", where: "id=?", whereArgs: [id]);
+  }
+  Dog pomeranian=  Dog(id: 1, name: "rogger", age: 4);
+  await insertdogs(pomeranian) ;
+  
+ 
+  await updatesdogs(Dog(id: 1, name: "shiro", age: 5));
+  print(await alldogs());
+  await deletedogs(1);
+  print(await alldogs());
+}
+class Databaseopr extends StatefulWidget {
+  const Databaseopr({super.key});
+
+  @override
+  State<Databaseopr> createState() => _DatabaseoprState();
+}
+
+class _DatabaseoprState extends State<Databaseopr> {
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+    return Scaffold(body: Center(child: Text("Database operation")),);
   }
 }

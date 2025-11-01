@@ -5,8 +5,8 @@
 import FlutterMacOS
 import Foundation
 
-import sqflite_darwin
+import rive_common
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
+  RivePlugin.register(with: registry.registrar(forPlugin: "RivePlugin"))
 }
