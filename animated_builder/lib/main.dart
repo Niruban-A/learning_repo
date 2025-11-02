@@ -22,7 +22,7 @@ class Animationbuild extends StatelessWidget {
         animation: animation,
         builder: (context, child) {
           return Opacity(
-            opacity: opacityanimation as double,
+            opacity: opacityanimation.value,
             child: SizedBox(
               height: animation.value,
               width: animation.value,
