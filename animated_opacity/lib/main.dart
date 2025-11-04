@@ -36,6 +36,7 @@ double width = 300;
         child:  AnimatedOpacity(
           duration: Duration(milliseconds: 500),
           opacity: visible?1:0,
+          curve: Curves.bounceIn,
           child: Container(
             
             width: width,
@@ -47,3 +48,4 @@ double width = 300;
     );
   }
 }
+// add documentation
