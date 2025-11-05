@@ -1,71 +1,52 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 void main() {
-  runApp(MaterialApp(home: HeroAnimation()));
+  runApp(MaterialApp(home: Sourceimage()));
 }
 
-class HeroAnimation extends StatelessWidget {
-  const HeroAnimation({super.key});
-
+class Sourceimage extends StatelessWidget {
+  const Sourceimage({super.key});
+  final photo = "assets/img.png";
+  @override
   Widget build(BuildContext context) {
-    //timeDilation = 5.0; // 1.0 means normal animation speed.
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Basic Hero Animation')),
       body: Center(
-        child: PhotoHero(
-          photo: 'assets/img.png',
-          width: 300.0,
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (context) {
-                  return Scaffold(
-                    appBar: AppBar(title: const Text('Flippers Page')),
-                    body: Container(
-                      // Set background to blue to emphasize that it's a new route.
-                      color: Colors.lightBlueAccent,
-                      padding: const EdgeInsets.all(16),
-                      alignment: Alignment.topLeft,
-                      child: PhotoHero(
-                        photo: 'assets/img.png',
-                        width: 10.0,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
-            );
+        child: InkWell(
+          onDoubleTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>DestinationWidget(photo: photo)));
           },
+          child: Hero(
+            
+            tag: photo,
+            child: SizedBox(
+              height: 400,
+              width: 400,
+              child: Image.asset("assets/img.png"),
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-class PhotoHero extends StatelessWidget {
-  const PhotoHero({
-    super.key,
-    required this.photo,
-    this.color,
-    required this.onTap,
-    required this.width,
-  });
-  final double width;
-  final String photo;
-  final Color? color;
-  final VoidCallback onTap;
+class DestinationWidget extends StatelessWidget {
+  const DestinationWidget({super.key, required this.photo});
+  final photo;
 
+  @override
   Widget build(BuildContext context) {
-    return Material(
-      // Slightly opaque color appears where the image has transparency.
-      color: Theme.of(context).primaryColor.withValues(alpha: 0.25),
-      child: InkWell(
-        onTap: onTap,
-        child: Image.asset(photo, fit: BoxFit.contain),
+    return Scaffold(
+      backgroundColor: Colors.blueAccent,
+      appBar: AppBar(title: Text("Destination Page")),
+      body: InkWell(
+        onTap: () {
+          Navigator.pop(context);
+        },
+        child: Hero(
+          tag: photo,
+          child: SizedBox(height: 100, width: 100, child: Image.asset(photo)),
+        ),
       ),
     );
   }
